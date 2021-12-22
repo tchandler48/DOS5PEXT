@@ -1,0 +1,128 @@
+Some ISPF/SPF-Functions for DOS/VS R34.
+
+No, it's not a full function ISPF for DOS, but it could be expanded
+in the future. At the moment it's supporting:
+       - DOS/VS Release 34
+	- POWER/VS
+	- 2311, 2314, 3350
+	- local NON-SNA
+
+ 
+It is written in plain DOS/VS-Assembler and it does not need BTAM/VTAM 
+because its using PIOCS-Level (CCW/CCM/EXCP) only and that is the reason
+it is only supporting local non-SNA-devices. It uses the POWER/VS-Interface
+for submitting Jobs. It deals with the DOS-Libraries and supports browings
+and editing possibilities. Some parts of the editing facilities I copied 
+from the VSEDIT-program of Gustavo Torres. Thanks to him.
+
+In the file-section of H390-DOSVS you will find the AWS-Tape (SPF for DOSVS R34)
+with all the modules you can link to your preferred Core Image Library with
+the following JCL (where SPF is catalogued in the SYSCLB) 
+
+	* $$ JOB JNM=SPFCAT
+	// JOB SPFCAT	
+   	// OPTION CATAL
+	// ASSGN SYSIPT, your AWS tape address
+	 INCLUDE
+	/*
+	// EXEC LNKEDT
+	/*
+	//&
+	* $$ EOJ
+
+The following phases are getting catalogued:
+
+	VSTSO 		-	the root phase of SPF
+	SPFM000	-  	SPFM014	the maps
+	SPFMERR	-	Error Map
+	SPFMWARN 	-	Warning Map
+
+
+To start SPF you need this JCL:
+	* $$ JOB JNM=VSTSO
+	// JOB VSTSO	
+   	// OPTION LOG
+	// ASSGN SYS004,X'440' OPTIONAL DOS
+	// ASSGN SYS005,X'02E' PRINTER
+	// ASSGN SYS007,X'081'                      Your Local NON-SNA-SCREEN for SPF
+	// ASSGN SYS008,x'130'
+
+	// ASSGN SYSCLB,..........                  Your PRIV CLB 
+	// DLBL IJSYSCL,'.........
+	// EXTENT SYSRLB,1.0......
+	// ASSGN SYSRLB,..........                  Your PRIV RLB 
+	// DLBL IJSYSRL,'.........
+	// EXTENT SYSRLB,1.0......          
+	// ASSGN SYSSLB,..........                  Your PRIV SLB 
+	// DLBL IJSYSSL,'.........
+	// EXTENT SYSSLB,1.0......          
+          
+	// EXEC VSTSO,SIZE=1024K
+	/*
+	// RESET SYS007
+	//&
+	* $$ EOJ
+
+
+*-------------------------------------------------------	
+* $$ JOB JNM=SPFM000,CLASS=0
+* $$ LST CLASS=P,JSEP=1                                                
+* ------------------------------------------------------
+* SAMPLE JOB TO ILLUSTRATE HOW TO ASSEMBLE, LINKEDIT
+* AND CATAL THE MAP SOURCE A.SPFM000
+* ------------------------------------------------------
+// JOB SPFM000  MAP
+// OPTION LOG,CATAL,XREF                                               
+// EXEC ASSEMBLY,SIZE=512K                                             
+         PRINT NOGEN
+         PUNCH ' PHASE SPFM000,* '
+* COPY THE A.SPFM000-SOURCE MODULE IN HERE
+/*
+// EXEC LNKEDT
+/&
+* $$ EOJ
+*--------------------------------------------------------
+	    
+Submit the Job VSTSO and you should see the DOS/VS-Logo with
+the Logon-Part. The UserID is IBMUSER and the password is IBM. 
+After being logged in you get the READY. Now type in SPF and 
+I hope you then will see the primary SPF-Screen.
+
+  				
+ VSSPF --------------------  Primary   ---------------------------------------- 
+ OPTION ===>                                                                    
+                                                              User - IBMUSER    
+   0  Parameter   - Specify your own Parameter                Date - 19.09.11   
+   1  Browse      - Browse anything you want                  Time - 06:14      
+   2  Edit        - Edit source members                                         
+   3  Utilities   - Perform Utilities Functions                                 
+   4  Foreground  - Invoke User applications in foreground                      
+   5  Environment - Information about configuration                             
+   6  Command     - Execute System Commands                                     
+   C  Changes     - Changes from last Version                                   
+   T  Tutorial    - This Program Information                                    
+   S  Samples     - Sample Programs                                             
+   X  Exit        - Terminate this Program                                      
+                                                                                
+                                                                                
+To try the editor, use 3 = Utilities and 4 = Fileslist for your Priv and System Libs,
+selet your wanted library and member.                                                                                
+                                                                                
+                                                                                
+                                                                                
+ ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+--- 
+ F1=HELP     F2=Retriev     F3=Exit     F4=SWITCH    F5= BACKW    F6=REPEAT     
+ F7=BACK     F8=FORWD       F9=1.Page  F10=VIEW-1   F11=VIEW-2   F12=LAST LINE
+
+Not implemented:	0 - Parameter
+			4 - Foreground
+			5 - Environment
+		       6 - Command 
+                     S - Samples
+
+I am working on a doumentation. 
+
+There are still some bugs. Please let me Know.  
+
+  
+  
