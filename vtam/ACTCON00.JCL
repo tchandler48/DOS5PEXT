@@ -1,0 +1,14 @@
+* $$ JOB JNM=ATCCON00,DISP=D,CLASS=0
+* $$ LST LST=SYSLST,FNO=A,JSEP=1
+// JOB ATCCON00 CATALOG B.ATCCON00
+// ASSGN SYSIPT,X'00C'
+// ASSGN SYSLST,X'00E'
+// EXEC MAINT
+ CATALS B.ATCCON00
+ BKEND
+APPLBUDD,                                                              X
+LCLMAJ00
+ BKEND
+/*
+/&
+* $$ EOJ
